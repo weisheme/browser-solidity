@@ -6,6 +6,7 @@ var BN = ethJSUtil.BN
 var helper = require('./txHelper')
 var TreeView = require('ethereum-remix').ui.TreeView
 var executionContext = require('../../execution-context')
+var solcLinker = require('solc/linker')
 
 module.exports = {
   /**
@@ -86,16 +87,7 @@ module.exports = {
       if (err) {
         return callback(err)
       }
-      var libLabel = '__' + libraryName + Array(39 - libraryName.length).join('_')
-      var hexAddress = address.toString('hex')
-      if (hexAddress.slice(0, 2) === '0x') {
-        hexAddress = hexAddress.slice(2)
-      }
-      hexAddress = Array(40 - hexAddress.length + 1).join('0') + hexAddress
-      while (bytecode.indexOf(libLabel) >= 0) {
-        bytecode = bytecode.replace(libLabel, hexAddress)
-      }
-      contract.bytecode = bytecode
+      contract.bytecode = solcLinker.linkBytecode(contract.bytecode, { [libraryName]: ethJSUtil.addHexPrefix(address.toString('hex')) })
       this.linkBytecode(contract, contracts, udapp, callback, callbackStep)
     }, callbackStep)
   },
