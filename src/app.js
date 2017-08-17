@@ -87,8 +87,9 @@ class App {
     var fileStorage = new Storage('sol:')
     self._api.config = new Config(fileStorage)
     self._api.filesProviders = {}
+    self._remixd = new Remixd()
     self._api.filesProviders['browser'] = new Browserfiles(fileStorage)
-    self._api.filesProviders['localhost'] = new SharedFolder(new Remixd())
+    self._api.filesProviders['localhost'] = new SharedFolder(self._remixd)
     self._view = {}
     self._components = {}
     self.data = {
@@ -495,7 +496,11 @@ function run () {
     self._components.editorpanel.refresh()
   }
 
-  var compiler = new Compiler(handleImportCall)
+  var compiler = new Compiler({ api:
+  {
+    handleImportCall: handleImportCall,
+    sharedFolder: self._api.filesProviders['localhost']
+  } })
   var offsetToLineColumnConverter = new OffsetToLineColumnConverter(compiler.event)
 
   // ----------------- Renderer -----------------
