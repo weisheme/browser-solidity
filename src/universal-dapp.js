@@ -222,7 +222,8 @@ UniversalDApp.prototype.getBalance = function (address, cb) {
 // this will render an instance: contract name, contract address, and all the public functions
 // basically this has to be called for the "atAddress" (line 393) and when a contract creation succeed
 // this returns a DOM element
-UniversalDApp.prototype.renderInstance = function (contract, address, contractName) {
+UniversalDApp.prototype.renderInstance = function (contractabi, address, contractName) {
+  contractabi = typeof contractabi === 'string' ? JSON.parse(contractabi) : contractabi
   function remove () { $instance.remove() }
   var $instance = $(`<div class="instance ${css.instance}"/>`)
   var context = this.executionContext.isVM() ? 'memory' : 'blockchain'
@@ -248,7 +249,7 @@ UniversalDApp.prototype.renderInstance = function (contract, address, contractNa
     copy(address)
   }
 
-  var abi = txHelper.sortAbiFunction(contract)
+  var abi = txHelper.sortAbiFunction(contractabi)
 
   $instance.get(0).appendChild(title)
 

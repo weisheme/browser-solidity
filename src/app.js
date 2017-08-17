@@ -550,6 +550,12 @@ function run () {
       document.querySelector(`.${css.dragbar2}`).style.right = delta + 'px'
       onResize()
     },
+    editorContent: () => {
+      return editor.get(editor.current())
+    },
+    currentFile: () => {
+      return config.get('currentFile')
+    },
     executionContextChange: (context) => {
       return executionContext.executionContextChange(context)
     },
