@@ -855,6 +855,7 @@ function run () {
   })
 
   // ----------------- autoCompile -----------------
+  // @TODO that should move to the compile tab :)
   var autoCompile = document.querySelector('#autoCompile').checked
   if (config.exists('autoCompile')) {
     autoCompile = config.get('autoCompile')
@@ -866,26 +867,31 @@ function run () {
     config.set('autoCompile', autoCompile)
   })
 
+  // @TODO runCompiler() should perhaps move to the compile tabs
   function runCompiler () {
     if (transactionDebugger.isActive) return
 
     editorSyncFile()
+    editor.clearAnnotations()
     var currentFile = config.get('currentFile')
     if (currentFile) {
-      var target = currentFile
-      var sources = {}
-      var provider = fileProviderOf(currentFile)
-      if (provider) {
-        provider.get(target, (error, content) => {
-          if (error) {
-            console.log(error)
-          } else {
-            sources[target] = content
-            compiler.compile(sources, target)
-          }
-        })
-      } else {
-        console.log('cannot compile ' + currentFile + '. Does not belong to any explorer')
+      if (/.(.sol)$/.exec(currentFile)) {
+        // only compile *.sol file.
+        var target = currentFile
+        var sources = {}
+        var provider = fileProviderOf(currentFile)
+        if (provider) {
+          provider.get(target, (error, content) => {
+            if (error) {
+              console.log(error)
+            } else {
+              sources[target] = content
+              compiler.compile(sources, target)
+            }
+          })
+        } else {
+          console.log('cannot compile ' + currentFile + '. Does not belong to any explorer')
+        }
       }
     }
   }
@@ -974,10 +980,6 @@ function run () {
     if (queryParams.get().debugtx) {
       startdebugging(queryParams.get().debugtx)
     }
-  })
-
-  compiler.event.register('compilationStarted', this, function () {
-    editor.clearAnnotations()
   })
 
   function startdebugging (txHash) {
