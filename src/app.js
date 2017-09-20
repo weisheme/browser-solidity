@@ -34,6 +34,7 @@ var TxLogger = require('./app/execution/txLogger')
 var EventsDecoder = require('./app/execution/eventsDecoder')
 var handleImports = require('./app/compiler/compiler-imports')
 var FileManager = require('./app/files/fileManager')
+var CommandInterpreter = require('./lib/cmdInterpreter')
 
 var styleGuide = remix.ui.styleGuide
 var styles = styleGuide()
@@ -413,10 +414,21 @@ function run () {
   }
   var staticanalysis = new StaticAnalysis(staticAnalysisAPI, compiler.event)
 
+  // ----------------- Command Interpreter -----------------
+  /*
+    this module basically listen on user input (from terminal && editor)
+    and interpret them as command
+  */
+  var cmdInterpreter = new CommandInterpreter()
+  cmdInterpreter.event.register('debug', (hash) => {
+    startdebugging(hash)
+  })
+
   // ---------------- Righthand-panel --------------------
 
   var rhpAPI = {
     config: config,
+    cmdInterpreter: cmdInterpreter,
     setEditorSize (delta) {
       $('#righthand-panel').css('width', delta)
       self._view.centerpanel.style.right = delta + 'px'
