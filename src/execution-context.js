@@ -104,13 +104,13 @@ function ExecutionContext () {
     return vm
   }
 
-  this.setContext = function (context, endPointUrl) {
+  this.setContext = function (context, endPointUrl, silent) {
     executionContext = context
-    this.executionContextChange(context, endPointUrl)
+    this.executionContextChange(context, endPointUrl, silent)
   }
 
-  this.executionContextChange = function (context, endPointUrl) {
-    if (context === 'web3' && !confirm('Are you sure you want to connect to an ethereum node?')) {
+  this.executionContextChange = function (context, endPointUrl, silent) {
+    if (!silent && context === 'web3' && !confirm('Are you sure you want to connect to an ethereum node?')) {
       return false
     } else if (context === 'injected' && injectedProvider === undefined) {
       return false
@@ -120,7 +120,9 @@ function ExecutionContext () {
         if (!endPointUrl) {
           endPointUrl = 'http://localhost:8545'
         }
-        endPointUrl = prompt('Web3 Provider Endpoint', endPointUrl)
+        if (!silent) {
+          endPointUrl = prompt('Web3 Provider Endpoint', endPointUrl)
+        }
         setProviderFromEndpoint(endPointUrl)
         self.event.trigger('contextChanged', ['web3'])
       } else if (context === 'injected') {
